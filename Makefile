@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = git-gui1.0.0
-DISTDIR = /home/julien/Documents/git-gui/.tmp/git-gui1.0.0
+DISTDIR = /home/juju80gen/Documents/Projet-Code/git-gui/git-gui/.tmp/git-gui1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
 LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
@@ -52,8 +52,10 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = src/main.cpp 
-OBJECTS       = main.o
+SOURCES       = src/main.cpp \
+		src/Window.cpp 
+OBJECTS       = main.o \
+		Window.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -131,7 +133,9 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		git-gui.pro  src/main.cpp
+		git-gui.pro include/includes.h \
+		include/Window.h src/main.cpp \
+		src/Window.cpp
 QMAKE_TARGET  = git-gui
 DESTDIR       = 
 TARGET        = git-gui
@@ -315,7 +319,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/includes.h include/Window.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/main.cpp src/Window.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -365,8 +370,13 @@ compiler_clean: compiler_moc_predefs_clean
 
 ####### Compile
 
-main.o: src/main.cpp 
+main.o: src/main.cpp include/includes.h \
+		include/Window.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
+
+Window.o: src/Window.cpp include/includes.h \
+		include/Window.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Window.o src/Window.cpp
 
 ####### Install
 
