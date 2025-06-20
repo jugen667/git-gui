@@ -4,7 +4,7 @@
 
 TEMPLATE = app
 TARGET = git-gui
-INCLUDEPATH +=
+LIBS += -L/usr/lib/x86_64-linux-gnu -lgit2
 
 QT += widgets
 QT += gui

@@ -24,6 +24,6 @@
 
 // custom includes
 #include "Window.h"
-
+#include <git2.h>
 
 #endif

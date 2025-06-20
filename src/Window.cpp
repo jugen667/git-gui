@@ -16,10 +16,10 @@
 //===============
 Window::Window() {
     // fields initialization
-    layout = new QGridLayout;
-    validateToken = new QPushButton(NULL,this);
-    buttonStatus = new QPushButton(NULL,this);
-    token = new QTextEdit("",this);
+    layout          =   new QGridLayout;
+    validateToken   =   new QPushButton(NULL,this);
+    buttonStatus    =   new QPushButton(NULL,this);
+    token           =   new QTextEdit("",this);
 
 
     // fields options
@@ -33,11 +33,7 @@ Window::Window() {
     validateToken->setGeometry(140,30,80,30);
     QPushButton::connect(validateToken, &QPushButton::clicked, this, &Window::onClickToken);
 
-
-    token->setGeometry(30,30,100,30);
-
-    // window management
-    // layout->addWidget(validateToken, 30, 30);
+    token->setGeometry(30,30,100,30);;
 
     // window display
     this->setFixedSize(1280, 720);
