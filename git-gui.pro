@@ -19,3 +19,7 @@ QT += gui
 # Input
 HEADERS += include/includes.h include/Window.h
 SOURCES += src/main.cpp src/Window.cpp
+
+# Output
+DESTDIR = bin
+OBJECTS_DIR = obj
