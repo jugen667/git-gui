@@ -21,7 +21,7 @@ class Window : QWidget
         QGridLayout *layout;
         // token
         QPushButton *validateToken;
-        QTextEdit   *token;
+        QTextEdit   *tokenTxtBox;
         // git status
         QPushButton *buttonStatus;
     public:
@@ -30,6 +30,10 @@ class Window : QWidget
         // events
         void onClickToken(); 
         void onClickStatus();
+
+        // widgets population
+        void ButtonCreation(QPushButton * pBtn, const char * btnTxt, const char * btnToolTip, int x, int y, int w, int h);
+        void TextBoxCreation(QTextEdit * pTxtBox, int x, int y, int w, int h);
 
         // getters
         QString getToken();

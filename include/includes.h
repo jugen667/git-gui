@@ -23,7 +23,8 @@
 #include <QtWidgets>
 
 // custom includes
-#include "Window.h"
 #include <git2.h>
+#include "Window.h"
+#include "GitObj.h"
 
 #endif

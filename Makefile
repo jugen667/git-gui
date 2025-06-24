@@ -53,9 +53,11 @@ OBJECTS_DIR   = obj/
 ####### Files
 
 SOURCES       = src/main.cpp \
-		src/Window.cpp 
+		src/Window.cpp \
+		src/GitObj.cpp 
 OBJECTS       = obj/main.o \
-		obj/Window.o
+		obj/Window.o \
+		obj/GitObj.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -134,8 +136,10 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		git-gui.pro include/includes.h \
-		include/Window.h src/main.cpp \
-		src/Window.cpp
+		include/Window.h \
+		include/GitObj.h src/main.cpp \
+		src/Window.cpp \
+		src/GitObj.cpp
 QMAKE_TARGET  = git-gui
 DESTDIR       = bin/
 TARGET        = bin/git-gui
@@ -320,8 +324,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/includes.h include/Window.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/main.cpp src/Window.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/includes.h include/Window.h include/GitObj.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/main.cpp src/Window.cpp src/GitObj.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -372,12 +376,19 @@ compiler_clean: compiler_moc_predefs_clean
 ####### Compile
 
 obj/main.o: src/main.cpp include/includes.h \
-		include/Window.h
+		include/Window.h \
+		include/GitObj.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
 
 obj/Window.o: src/Window.cpp include/includes.h \
-		include/Window.h
+		include/Window.h \
+		include/GitObj.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/Window.o src/Window.cpp
+
+obj/GitObj.o: src/GitObj.cpp include/includes.h \
+		include/Window.h \
+		include/GitObj.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/GitObj.o src/GitObj.cpp
 
 ####### Install
 

@@ -13,7 +13,8 @@
 //==========
 // - MAIN -
 //==========
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
 	git_libgit2_init();
 	QApplication * app = new QApplication(argc, argv); // class for app creation
 	// windows creation
