@@ -16,7 +16,7 @@
 //===============
 // for debug
 void DisplayStatus(const git_status_entry * status_entry); 
-bool ReturnStatus(const git_status_entry * status_entry);
+QString ReturnStatus(const git_status_entry * status_entry);
 //================
 // - CLASSES -
 //================

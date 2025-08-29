@@ -11,7 +11,13 @@
 // - INCLUDES -
 //==============
 #include <QtWidgets>
+#include <vector>
 #include "GitObj.h"
+
+//==============
+// -  DEFINES  -
+//==============
+#define COL_AMT 2 
 
 
 //================
@@ -21,16 +27,25 @@ class Window : QWidget, GitObj
 {
     private:
         QGridLayout *layout;
+        // save for the entry
+        std::vector<git_status_entry> statusList;
+        std::vector<git_status_entry> addList;
         // to link with a git obj
         GitObj * git_object;
         // git status
         QPushButton *buttonStatus;
         QLabel      *labelStatus;
-        QListWidget * changesStatus;
+        // git add
+        QPushButton *addButton;
+        QLabel      *labelAdd;
+        // GUI tables
+        QTableWidget * changesStatus;
+        QTableWidget * addedFile;
     public:
         using QWidget::QObject; // for QObject inheritance
         // events
         void onClickStatus();
+        void onClickAdd();
         // void onClickRepo();
 
         // widgets population

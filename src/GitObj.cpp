@@ -13,6 +13,7 @@
 //===============
 // - FUNCTIONS -
 //===============
+// for debug
 void DisplayStatus(const git_status_entry * status_entry)
 {
     switch (status_entry->status)
@@ -37,19 +38,27 @@ void DisplayStatus(const git_status_entry * status_entry)
     }
 }
 
-bool ReturnStatus(const git_status_entry * status_entry)
+QString ReturnStatus(const git_status_entry * status_entry)
 {
     switch (status_entry->status)
     {
-        case GIT_STATUS_WT_NEW :   
+        case GIT_STATUS_WT_NEW : 
+            return "new";
+        break;
         case GIT_STATUS_WT_MODIFIED:
+            return "modified";
+        break;
         case GIT_STATUS_WT_DELETED:
-        case GIT_STATUS_WT_RENAMED:        
+            return "deleted";
+        break;
+        case GIT_STATUS_WT_RENAMED:
+            return "renamed";
+        break;        
         case GIT_STATUS_WT_TYPECHANGE:
-           return true;
+            return "typechange";
         break;
         default :
-            return false;
+            return "";
         break;
     }
 }
