@@ -10,7 +10,8 @@
 //==============
 #include "../include/includes.h"
 
-
+static int curFile = 0;
+static int maxFile = 0;
 //===============
 // - METHODS -
 //===============
@@ -22,24 +23,28 @@ Window::Window(GitObj * git_obj)
     layout          =   new QGridLayout;
     buttonStatus    =   new QPushButton(NULL,this); 
     addButton       =   new QPushButton(NULL,this); 
+    commitButton    =   new QPushButton(NULL,this); 
     labelStatus     =   new QLabel(NULL,this); 
     labelAdd        =   new QLabel(NULL,this); 
+    labelCommit        =   new QLabel(NULL,this); 
     changesStatus   =   new QTableWidget(this); 
     addedFile       =   new QTableWidget(this); 
     git_object      =   git_obj;
 
-    ButtonCreation(buttonStatus, "Get status", "Execute git status", 30,30,80,30);
-    QPushButton::connect(buttonStatus, &QPushButton::clicked, this, &Window::onClickStatus);
     labelStatus->setGeometry(30,90,120,30);
-    changesStatus->setGeometry(30,170,300,400);
-    changesStatus->setColumnCount(COL_AMT);
-    
-    
-    addedFile->setGeometry(350,170,300,400);
-    labelAdd->setGeometry(30,130,80,30);
+    ButtonCreation(buttonStatus, "Get status", "Execute git status (resets added files)", 30,30,80,30);
+    QPushButton::connect(buttonStatus, &QPushButton::clicked, this, &Window::onClickStatus);
+    labelAdd->setGeometry(350,90,120,30);
     ButtonCreation(addButton, "Add file(s)", "Add selected files", 130,30,80,30);
-
     QPushButton::connect(addButton, &QPushButton::clicked, this, &Window::onClickAdd);
+    labelCommit->setGeometry(670,90,120,30);
+    ButtonCreation(commitButton, "Commit file(s)", "Commit added files", 230,30,100,30);
+    QPushButton::connect(commitButton, &QPushButton::clicked, this, &Window::onClickCommit);
+
+    changesStatus->setGeometry(30,170,300,400);
+    changesStatus->setColumnCount(COL_AMT);    
+    addedFile->setGeometry(350,170,300,400);
+    addedFile->setColumnCount(COL_AMT);
 
     // window display
     this->setFixedSize(1280, 720);
@@ -73,11 +78,14 @@ void Window::onClickStatus()
     QTableWidgetItem * tempItem;
     git_status_list_new(Window::git_object->GetGitStatusListAddress(), Window::git_object->GetCurrentGitRepo(), NULL);
     count = git_status_list_entrycount(Window::git_object->GetGitStatusList());
+    maxFile = count;
     if(count > 0)
     {
         // clear tables
         changesStatus->clear();
         addedFile->clear();
+        addedFile->setRowCount(0);
+        curFile = 0;
         QString str;
         str = QString::number(count) + " diff(s) found ";
         Window::labelStatus->setText(str);
@@ -92,12 +100,9 @@ void Window::onClickStatus()
             tempItem = new QTableWidgetItem;
             tempItem->setText(entry->index_to_workdir->new_file.path);
             changesStatus->setItem(i, 0, tempItem); 
-            qDebug() << tempItem->text();
             tempItem = new QTableWidgetItem;
             tempItem->setText(ReturnStatus(entry));
-            changesStatus->setItem(i, 1, tempItem); 
-            qDebug() << tempItem->text();
-            qDebug() << changesStatus->rowCount(); 
+            changesStatus->setItem(i, 1, tempItem);
         }
         changesStatus->resizeColumnsToContents();
     }
@@ -105,14 +110,42 @@ void Window::onClickStatus()
 
 void Window::onClickAdd()
 {
-    // QTableWidgetItem * tempItem;
-    // tempItem = new QTableWidgetItem;
-    // tempItem = changesStatus->selectedItems()[0];
-    // addFile->setItem(0, 1, tempItem);
+    // if it works it works
+    QTableWidgetItem * tempItem;
+    int actualSize = 0;
+    addedFile->setRowCount( curFile/2 + changesStatus->selectedItems().size()); 
+    addedFile->setHorizontalHeaderLabels({"FileName","Status"});
+    addedFile->setSelectionBehavior(QAbstractItemView::SelectRows);
+    addedFile->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    if(curFile/2 < maxFile)
+    {
+        for(int i = 0; i < changesStatus->selectedItems().size(); i++)
+        { 
+            tempItem = new QTableWidgetItem;
+            tempItem = changesStatus->selectedItems()[i]->clone();
+            addedFile->setItem(i%2 ? curFile/2 + i - 1 : curFile/2 + i, i%2 ? 1 : 0, tempItem);actualSize++;
+        }
+        curFile += changesStatus->selectedItems().size();
+        for(int i = 0; i < curFile; i++)
+        {
+            if(!addedFile->item(i, 0))
+            {
+                addedFile->removeRow(i);
+            }
+        }
+        addedFile->resizeColumnsToContents();
+    }
+    addedFile->setRowCount(curFile/2);
     QString str;
-    str = "Added files";
+    str =  QString::number(curFile/2) + " added files";
     Window::labelAdd->setText(str);
-    std::cout << "onclickadd" << std::endl;
+}
+
+void Window::onClickCommit()
+{
+    QString str;
+    str =  "Commit !";
+    Window::labelCommit->setText(str);
 }
 
 /*

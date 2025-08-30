@@ -38,6 +38,9 @@ class Window : QWidget, GitObj
         // git add
         QPushButton *addButton;
         QLabel      *labelAdd;
+        // git commit
+        QPushButton *commitButton;
+        QLabel      *labelCommit;
         // GUI tables
         QTableWidget * changesStatus;
         QTableWidget * addedFile;
@@ -46,6 +49,7 @@ class Window : QWidget, GitObj
         // events
         void onClickStatus();
         void onClickAdd();
+        void onClickCommit();
         // void onClickRepo();
 
         // widgets population

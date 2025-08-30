@@ -58,7 +58,7 @@ QString ReturnStatus(const git_status_entry * status_entry)
             return "typechange";
         break;
         default :
-            return "";
+            return NULL;
         break;
     }
 }
