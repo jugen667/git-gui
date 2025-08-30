@@ -33,7 +33,11 @@ void DisplayStatus(const git_status_entry * status_entry)
         case GIT_STATUS_WT_TYPECHANGE:
             std::cout << "typechange:" << status_entry->index_to_workdir->old_file.path << "\t->\t" << status_entry->index_to_workdir->new_file.path << std::endl;
         break;
+        case GIT_STATUS_IGNORED:
+            std::cout << "ignored:" << status_entry->index_to_workdir->old_file.path << std::endl;
+        break;
         default :
+           std::cout <<  status_entry->status << std::endl; 
         break;
     }
 }
@@ -56,6 +60,9 @@ QString ReturnStatus(const git_status_entry * status_entry)
         break;        
         case GIT_STATUS_WT_TYPECHANGE:
             return "typechange";
+        break;
+        case GIT_STATUS_IGNORED:
+            return "ignored";
         break;
         default :
             return NULL;

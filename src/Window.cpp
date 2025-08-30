@@ -97,6 +97,7 @@ void Window::onClickStatus()
         for (int i=0; i<count; i++)
         {
             entry = git_status_byindex(Window::git_object->GetGitStatusList(), i);
+            DisplayStatus(entry);
             tempItem = new QTableWidgetItem;
             tempItem->setText(entry->index_to_workdir->new_file.path);
             changesStatus->setItem(i, 0, tempItem); 
