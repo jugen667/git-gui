@@ -29,7 +29,7 @@ Window::Window(GitObj * git_obj)
     labelCommit        =   new QLabel(NULL,this); 
     changesStatus   =   new QTableWidget(this); 
     addedFile       =   new QTableWidget(this); 
-    git_object      =   git_obj;
+    git_objct      =   git_obj;
 
     labelStatus->setGeometry(30,90,120,30);
     ButtonCreation(buttonStatus, "Get status", "Execute git status (resets added files)", 30,30,80,30);
@@ -76,8 +76,8 @@ void Window::onClickStatus()
     int count;
     const git_status_entry * entry;
     QTableWidgetItem * tempItem;
-    git_status_list_new(Window::git_object->GetGitStatusListAddress(), Window::git_object->GetCurrentGitRepo(), NULL);
-    count = git_status_list_entrycount(Window::git_object->GetGitStatusList());
+    git_status_list_new(Window::git_objct->GetGitStatusListAddress(), Window::git_objct->GetCurrentGitRepo(), NULL);
+    count = git_status_list_entrycount(Window::git_objct->GetGitStatusList());
     maxFile = count;
     if(count > 0)
     {
@@ -96,7 +96,7 @@ void Window::onClickStatus()
         changesStatus->setRowCount(count);
         for (int i=0; i<count; i++)
         {
-            entry = git_status_byindex(Window::git_object->GetGitStatusList(), i);
+            entry = git_status_byindex(Window::git_objct->GetGitStatusList(), i);
             DisplayStatus(entry);
             tempItem = new QTableWidgetItem;
             tempItem->setText(entry->index_to_workdir->new_file.path);
@@ -142,10 +142,65 @@ void Window::onClickAdd()
     Window::labelAdd->setText(str);
 }
 
+void Window::onClickAdd()
+{
+    // if it works it works
+    QTableWidgetItem * tempItem;
+    int actualSize = 0;
+    addedFile->setRowCount( curFile/2 + changesStatus->selectedItems().size()); 
+    addedFile->setHorizontalHeaderLabels({"FileName","Status"});
+    addedFile->setSelectionBehavior(QAbstractItemView::SelectRows);
+    addedFile->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    if(curFile/2 < maxFile)
+    {
+        for(int i = 0; i < changesStatus->selectedItems().size(); i++)
+        { 
+            tempItem = new QTableWidgetItem;
+            tempItem = changesStatus->selectedItems()[i]->clone();
+            addedFile->setItem(i%2 ? curFile/2 + i - 1 : curFile/2 + i, i%2 ? 1 : 0, tempItem);actualSize++;
+        }
+        curFile += changesStatus->selectedItems().size();
+        for(int i = 0; i < curFile; i++)
+        {
+            if(!addedFile->item(i, 0))
+            {
+                addedFile->removeRow(i);
+            }
+        }
+        addedFile->resizeColumnsToContents();
+    }
+    addedFile->setRowCount(curFile/2);
+    QString str;
+    str =  QString::number(curFile/2) + " added files";
+    Window::labelAdd->setText(str);
+}
+
 void Window::onClickCommit()
 {
+    git_oid commit_oid,tree_oid;
+    git_tree *tree;
+    git_index *index;
+    git_object *parnt = NULL;
+    git_reference *ref = NULL;
+    git_signature *author_signature, *committer_signature;
+    const char * comment = "Test commit using git-gui"; 
     QString str;
     str =  "Commit !";
+    qDebug() << git_repository_index(&index, git_objct->GetCurrentGitRepo());
+    qDebug() << git_index_write_tree(&tree_oid, index);
+    qDebug() << git_index_write(index);
+    qDebug() << git_tree_lookup(&tree, git_objct->GetCurrentGitRepo(), &tree_oid);
+    qDebug() << git_signature_default(&author_signature, NULL , git_objct->GetCurrentGitRepo());
+    qDebug() << git_commit_create_v(
+        &commit_oid,
+        git_objct->GetCurrentGitRepo(),
+        "HEAD",
+        author_signature,
+        committer_signature,
+        NULL,
+        comment,
+        tree,
+        parnt ? 1 : 0, parnt);
     Window::labelCommit->setText(str);
 }
 

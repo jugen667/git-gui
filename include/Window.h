@@ -31,7 +31,7 @@ class Window : QWidget, GitObj
         std::vector<git_status_entry> statusList;
         std::vector<git_status_entry> addList;
         // to link with a git obj
-        GitObj * git_object;
+        GitObj * git_objct;
         // git status
         QPushButton *buttonStatus;
         QLabel      *labelStatus;
