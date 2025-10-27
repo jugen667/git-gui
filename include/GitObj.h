@@ -23,13 +23,15 @@ QString ReturnStatus(const git_status_entry * status_entry);
 class GitObj
 {
     private:
-        git_repository  *   repo;           // repository
-        git_status_list *   statuses;       // status list
+        git_repository      *repo;           // repository
+        git_status_list     *statuses;       // status list
+        git_status_options  statusOptions;
     public:
         // getter
-        git_repository  *   GetCurrentGitRepo(); 
-        git_status_list *   GetGitStatusList();
-        git_status_list **  GetGitStatusListAddress();
+        git_repository      *GetCurrentGitRepo(); 
+        git_status_list     *GetGitStatusList();
+        git_status_list     **GetGitStatusListAddress();
+        git_status_options  *GetGitStatusOpt();
         // constructor
         GitObj();
 };

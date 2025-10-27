@@ -13,7 +13,6 @@
 //===============
 // - FUNCTIONS -
 //===============
-// for debug
 void DisplayStatus(const git_status_entry * status_entry)
 {
     switch (status_entry->status)
@@ -70,16 +69,21 @@ QString ReturnStatus(const git_status_entry * status_entry)
     }
 }
 
+
 //===============
 // - METHODS -
 //===============
 
-// main window construction
+// git object construction
 GitObj::GitObj() 
 {
     // fields initialization
     repo = NULL;
     statuses = NULL;
+
+    // status options init
+    statusOptions = GIT_STATUS_OPTIONS_INIT;
+    statusOptions.flags = (GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS);
 
     // init the repo the bin is in
     git_repository_open(&repo,".");
@@ -99,4 +103,9 @@ git_status_list * GitObj::GetGitStatusList()
 git_status_list ** GitObj::GetGitStatusListAddress()
 {
     return &(GitObj::statuses);
+} 
+
+git_status_options * GitObj::GetGitStatusOpt()
+{
+    return &(GitObj::statusOptions);
 } 
