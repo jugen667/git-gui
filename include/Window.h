@@ -26,24 +26,29 @@
 class Window : QWidget, GitObj
 {
     private:
-        QGridLayout *layout;
+        QGridLayout     * layout;
         // save for the entry
         std::vector<git_status_entry> statusList;
         std::vector<git_status_entry> addList;
         // to link with a git obj
-        GitObj * git_object;
+        GitObj          * git_objct;
         // git status
-        QPushButton *buttonStatus;
-        QLabel      *labelStatus;
+        QPushButton     * buttonStatus;
+        QLabel          * labelStatus;
         // git add
-        QPushButton *addButton;
-        QLabel      *labelAdd;
+        QPushButton     * addButton;
+        QLabel          * labelAdd;
         // git commit
-        QPushButton *commitButton;
-        QLabel      *labelCommit;
+        QPushButton     * commitButton;
+        QLabel          * labelCommit;
         // GUI tables
-        QTableWidget * changesStatus;
-        QTableWidget * addedFile;
+        QTableWidget    * changesStatus;
+        QTableWidget    * addedFile;
+        // TextBoxes for name and mail
+        QLabel          * labelGitName;
+        QLabel          * labelGitMail;
+        QTextEdit       * gitNameTextBox;     
+        QTextEdit       * gitMailTextBox;     
     public:
         using QWidget::QObject; // for QObject inheritance
         // events
@@ -58,7 +63,12 @@ class Window : QWidget, GitObj
 
         // getters
         // const char* getPath();
+        const char* getPath();
+        const char* getGitName();
+        const char* getGitMail();
 
+        QTableWidget * GetAddedFile();
+        Window * GetWindow();
         // constructor
         Window(GitObj * git_obj);
 };

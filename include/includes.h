@@ -9,6 +9,8 @@
 #ifndef _GLOBAL_INCLUDE_
 #define _GLOBAL_INCLUDE_
 
+
+#define __DEBUG
 //==============
 // - INCLUDES -
 //==============
@@ -18,6 +20,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <iostream>
+#include <vector>
 
 // Qt include
 #include <QtWidgets>
