@@ -47,10 +47,13 @@ Window::Window(GitObj * git_obj)
     labelCommit     =   new QLabel(NULL,this); 
     changesStatus   =   new QTableWidget(this); 
     addedFile       =   new QTableWidget(this); 
+<<<<<<< HEAD
     labelGitName    =   new QLabel(NULL,this); 
     labelGitMail    =   new QLabel(NULL,this); 
     gitNameTextBox  =   new QTextEdit("", this);    
     gitMailTextBox  =   new QTextEdit("", this);
+=======
+>>>>>>> b557b270115b6e7a1bf0f6f77ad2973107d6dfc5
     git_objct       =   git_obj;
 
     // add author / token field
@@ -105,6 +108,46 @@ void Window::TextBoxCreation(QTextEdit * pTxtBox,
 }
 
 // events managements
+// void Window::onClickStatus0()
+// {
+//     int count;
+//     const git_status_entry * entry;
+//     QTableWidgetItem * tempItem;
+//     // init list
+//     git_status_list_new(Window::git_objct->GetGitStatusListAddress(), Window::git_objct->GetCurrentGitRepo(), Window::git_objct->GetGitStatusOpt());
+//     count = git_status_list_entrycount(Window::git_objct->GetGitStatusList());
+//     maxFile = count;
+//     if(count > 0)
+//     {
+//         // clear tables
+//         changesStatus->clear();
+//         addedFile->clear();
+//         addedFile->setRowCount(0);
+//         curFile = 0;
+//         QString str;
+//         str = QString::number(count) + " diff(s) found ";
+//         Window::labelStatus->setText(str);
+//         changesStatus->setHorizontalHeaderLabels({"FileName","Status"});
+//         changesStatus->setSelectionBehavior(QAbstractItemView::SelectRows);
+//         changesStatus->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+//         changesStatus->setRowCount(count);
+//         for (int i=0; i<count; i++)
+//         {
+//             entry = git_status_byindex(Window::git_objct->GetGitStatusList(), i);
+// #if defined (__DEBUG)
+//             DisplayStatus(entry);
+// #endif
+//             tempItem = new QTableWidgetItem;
+//             tempItem->setText(entry->index_to_workdir->new_file.path);
+//             changesStatus->setItem(i, 0, tempItem); 
+//             tempItem = new QTableWidgetItem;
+//             tempItem->setText(ReturnStatus(entry));
+//             changesStatus->setItem(i, 1, tempItem);
+//         }
+//         changesStatus->resizeColumnsToContents();
+//     }
+// }
 void Window::onClickStatus()
 {
     int count;
@@ -140,14 +183,54 @@ void Window::onClickStatus()
             tempItem->setData(Qt::UserRole, entry);
             tempItem->setData(Qt::DisplayRole, entry->index_to_workdir->new_file.path);
             changesStatus->setItem(i, 0, tempItem); 
+<<<<<<< HEAD
             tempItem = new QTableWidgetItem();
+=======
+            tempItem = new QTableWidgetItem;
+>>>>>>> b557b270115b6e7a1bf0f6f77ad2973107d6dfc5
             tempItem->setData(Qt::UserRole, entry);
             tempItem->setData(Qt::DisplayRole, ReturnStatus(entry));
             changesStatus->setItem(i, 1, tempItem);
+            // tempItem->setText(entry->index_to_workdir->new_file.path);
+            // tempItem->setText(ReturnStatus(entry));
         }
         changesStatus->resizeColumnsToContents();
     }
 }
+
+// void Window::onClickAdd()
+// {
+//     // if it works it works
+//     QTableWidgetItem * tempItem;
+//     int actualSize = 0;
+//     addedFile->setRowCount( curFile/2 + changesStatus->selectedItems().size()); 
+//     addedFile->setHorizontalHeaderLabels({"FileName","Status"});
+//     addedFile->setSelectionBehavior(QAbstractItemView::SelectRows);
+//     addedFile->setSelectionMode(QAbstractItemView::ExtendedSelection);
+//     if(curFile/2 < maxFile)
+//     {
+//         for(int i = 0; i < changesStatus->selectedItems().size(); i++)
+//         { 
+//             // tempItem = new QTableWidgetItem;
+//             // tempItem = changesStatus->selectedItems()[i]->clone();
+//             addedFile->setItem(i%2 ? curFile/2 + i - 1 : curFile/2 + i, i%2 ? 1 : 0, /*tempItem*/ changesStatus->selectedItems()[i]->clone());
+//             actualSize++;
+//         }
+//         curFile += changesStatus->selectedItems().size();
+//         for(int i = 0; i < curFile; i++)
+//         {
+//             if(!addedFile->item(i, 0))
+//             {
+//                 addedFile->removeRow(i);
+//             }
+//         }
+//         addedFile->resizeColumnsToContents();
+//     }
+//     addedFile->setRowCount(curFile/2);
+//     QString str;
+//     str =  QString::number(curFile/2) + " added files";
+//     Window::labelAdd->setText(str);
+// }
 
 void Window::onClickAdd()
 {
@@ -205,8 +288,6 @@ void Window::onClickAdd()
                 flag = 0;   
                 break;
             }
-
-
         }
         if(actualSize)
             curFile += actualSize;
