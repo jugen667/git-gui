@@ -47,13 +47,10 @@ Window::Window(GitObj * git_obj)
     labelCommit     =   new QLabel(NULL,this); 
     changesStatus   =   new QTableWidget(this); 
     addedFile       =   new QTableWidget(this); 
-<<<<<<< HEAD
     labelGitName    =   new QLabel(NULL,this); 
     labelGitMail    =   new QLabel(NULL,this); 
     gitNameTextBox  =   new QTextEdit("", this);    
     gitMailTextBox  =   new QTextEdit("", this);
-=======
->>>>>>> b557b270115b6e7a1bf0f6f77ad2973107d6dfc5
     git_objct       =   git_obj;
 
     // add author / token field
@@ -183,11 +180,7 @@ void Window::onClickStatus()
             tempItem->setData(Qt::UserRole, entry);
             tempItem->setData(Qt::DisplayRole, entry->index_to_workdir->new_file.path);
             changesStatus->setItem(i, 0, tempItem); 
-<<<<<<< HEAD
             tempItem = new QTableWidgetItem();
-=======
-            tempItem = new QTableWidgetItem;
->>>>>>> b557b270115b6e7a1bf0f6f77ad2973107d6dfc5
             tempItem->setData(Qt::UserRole, entry);
             tempItem->setData(Qt::DisplayRole, ReturnStatus(entry));
             changesStatus->setItem(i, 1, tempItem);
