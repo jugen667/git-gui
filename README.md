@@ -1,13 +1,17 @@
 # Git GUI 
 Simple GUI for Git project management 
 
+## IN STALE
+Project is boring me, didn't expect that much rework while using the lib
+Currently commits an index but not the files
+
 
 ## Roadmap 
 
 - ~~Open a repo~~
 - ~~Do a Git status~~
-- Show the git status (currently displaying if diffs)
-- Add files (first all and then 1 by 1)
+- ~~Show the git status~~
+- ~~Add files~~
 - Git commit with message
 - Git push
 - Save token and name in config
