@@ -10,25 +10,10 @@
 //==============
 #include "../include/includes.h"
 
-static int curFile = 0;
-static int maxFile = 0;
-static int actualSize = 0;
+static unsigned int curFile = 0;
+static unsigned int maxFile = 0;
 static std::vector<std::string> pathList;
-
-
-enum index_mode {
-    INDEX_NONE,
-    INDEX_ADD
-};
-
-struct index_options {
-    int dry_run;
-    int verbose;
-    git_repository *repo;
-    enum index_mode mode;
-    int add_update;
-};
-
+static char tmpStr[64] = {0}; 
 
 //===============
 // - METHODS -
@@ -38,22 +23,31 @@ struct index_options {
 Window::Window(GitObj * git_obj) 
 {
     // fields initialization
+    git_objct       =   git_obj;
     layout          =   new QGridLayout;
+    // buttons
     buttonStatus    =   new QPushButton(NULL,this); 
     addButton       =   new QPushButton(NULL,this); 
     commitButton    =   new QPushButton(NULL,this); 
+    pushButton      =   new QPushButton(NULL,this);
+    // labels 
     labelStatus     =   new QLabel(NULL,this); 
     labelAdd        =   new QLabel(NULL,this); 
     labelCommit     =   new QLabel(NULL,this); 
-    changesStatus   =   new QTableWidget(this); 
-    addedFile       =   new QTableWidget(this); 
+    labelPush       =   new QLabel(NULL,this); 
     labelGitName    =   new QLabel(NULL,this); 
     labelGitMail    =   new QLabel(NULL,this); 
+    labelComment    =   new QLabel(NULL,this); 
+    // lists
+    changesStatus   =   new QTableWidget(this); 
+    addedFile       =   new QTableWidget(this); 
+    // text boxes
     gitNameTextBox  =   new QTextEdit("", this);    
     gitMailTextBox  =   new QTextEdit("", this);
-    git_objct       =   git_obj;
+    commentTextBox  =   new QTextEdit("", this);
 
-    // add author / token field
+
+    // add token field
     // add options checkbox 
     // add comment field
 
@@ -64,9 +58,12 @@ Window::Window(GitObj * git_obj)
     labelAdd->setGeometry(350,90,120,30);
     ButtonCreation(addButton, "Add file(s)", "Add selected files", 130,30,80,30);
     QPushButton::connect(addButton, &QPushButton::clicked, this, &Window::onClickAdd);
-    labelCommit->setGeometry(670,90,120,30);
-    ButtonCreation(commitButton, "Commit file(s)", "Commit added files", 230,30,100,30);
+    labelCommit->setGeometry(800,90,300,30);
+    ButtonCreation(commitButton, "Commit file(s)", "Commit added files", 800,30,100,30);
     QPushButton::connect(commitButton, &QPushButton::clicked, this, &Window::onClickCommit);
+    labelPush->setGeometry(900,90,120,30);
+    ButtonCreation(pushButton, "Push commited files", "Push", 930,30,150,30);
+    QPushButton::connect(pushButton, &QPushButton::clicked, this, &Window::onClickPush);
 
     changesStatus->setGeometry(30,170,300,400);
     changesStatus->setColumnCount(COL_AMT);    
@@ -79,6 +76,10 @@ Window::Window(GitObj * git_obj)
     labelGitMail->setGeometry(30,650,300,30);
     labelGitMail->setText("Enter your git mail : ");
     gitMailTextBox->setGeometry(200,650,300,30);
+
+    labelComment->setGeometry(800,130,300,30);
+    labelComment->setText("Enter your comment : ");
+    commentTextBox->setGeometry(800,170,300,200);
 
     // window display
     this->setFixedSize(1280, 720);
@@ -105,53 +106,16 @@ void Window::TextBoxCreation(QTextEdit * pTxtBox,
 }
 
 // events managements
-// void Window::onClickStatus0()
-// {
-//     int count;
-//     const git_status_entry * entry;
-//     QTableWidgetItem * tempItem;
-//     // init list
-//     git_status_list_new(Window::git_objct->GetGitStatusListAddress(), Window::git_objct->GetCurrentGitRepo(), Window::git_objct->GetGitStatusOpt());
-//     count = git_status_list_entrycount(Window::git_objct->GetGitStatusList());
-//     maxFile = count;
-//     if(count > 0)
-//     {
-//         // clear tables
-//         changesStatus->clear();
-//         addedFile->clear();
-//         addedFile->setRowCount(0);
-//         curFile = 0;
-//         QString str;
-//         str = QString::number(count) + " diff(s) found ";
-//         Window::labelStatus->setText(str);
-//         changesStatus->setHorizontalHeaderLabels({"FileName","Status"});
-//         changesStatus->setSelectionBehavior(QAbstractItemView::SelectRows);
-//         changesStatus->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-//         changesStatus->setRowCount(count);
-//         for (int i=0; i<count; i++)
-//         {
-//             entry = git_status_byindex(Window::git_objct->GetGitStatusList(), i);
-// #if defined (__DEBUG)
-//             DisplayStatus(entry);
-// #endif
-//             tempItem = new QTableWidgetItem;
-//             tempItem->setText(entry->index_to_workdir->new_file.path);
-//             changesStatus->setItem(i, 0, tempItem); 
-//             tempItem = new QTableWidgetItem;
-//             tempItem->setText(ReturnStatus(entry));
-//             changesStatus->setItem(i, 1, tempItem);
-//         }
-//         changesStatus->resizeColumnsToContents();
-//     }
-// }
 void Window::onClickStatus()
 {
     int count;
+    QString str;
     const git_status_entry * entry;
     QTableWidgetItem * tempItem;
     // init list
-    git_status_list_new(Window::git_objct->GetGitStatusListAddress(), Window::git_objct->GetCurrentGitRepo(), Window::git_objct->GetGitStatusOpt());
+    git_status_list_new(Window::git_objct->GetGitStatusListAddress(), 
+                        Window::git_objct->GetCurrentGitRepo(), 
+                        Window::git_objct->GetGitStatusOpt());
     count = git_status_list_entrycount(Window::git_objct->GetGitStatusList());
     maxFile = count;
     if(count > 0)
@@ -162,7 +126,6 @@ void Window::onClickStatus()
         pathList.clear();
         addedFile->setRowCount(0);
         curFile = 0;
-        QString str;
         str = QString::number(count) + " diff(s) found ";
         Window::labelStatus->setText(str);
         changesStatus->setHorizontalHeaderLabels({"FileName","Status"});
@@ -173,8 +136,8 @@ void Window::onClickStatus()
         for (int i=0; i<count; i++)
         {
             entry = git_status_byindex(Window::git_objct->GetGitStatusList(), i);
-#if defined (__DEBUG)
             DisplayStatus(entry);
+#if defined (__DEBUG)
 #endif
             tempItem = new QTableWidgetItem();
             tempItem->setData(Qt::UserRole, entry);
@@ -184,54 +147,19 @@ void Window::onClickStatus()
             tempItem->setData(Qt::UserRole, entry);
             tempItem->setData(Qt::DisplayRole, ReturnStatus(entry));
             changesStatus->setItem(i, 1, tempItem);
-            // tempItem->setText(entry->index_to_workdir->new_file.path);
-            // tempItem->setText(ReturnStatus(entry));
         }
         changesStatus->resizeColumnsToContents();
     }
 }
 
-// void Window::onClickAdd()
-// {
-//     // if it works it works
-//     QTableWidgetItem * tempItem;
-//     int actualSize = 0;
-//     addedFile->setRowCount( curFile/2 + changesStatus->selectedItems().size()); 
-//     addedFile->setHorizontalHeaderLabels({"FileName","Status"});
-//     addedFile->setSelectionBehavior(QAbstractItemView::SelectRows);
-//     addedFile->setSelectionMode(QAbstractItemView::ExtendedSelection);
-//     if(curFile/2 < maxFile)
-//     {
-//         for(int i = 0; i < changesStatus->selectedItems().size(); i++)
-//         { 
-//             // tempItem = new QTableWidgetItem;
-//             // tempItem = changesStatus->selectedItems()[i]->clone();
-//             addedFile->setItem(i%2 ? curFile/2 + i - 1 : curFile/2 + i, i%2 ? 1 : 0, /*tempItem*/ changesStatus->selectedItems()[i]->clone());
-//             actualSize++;
-//         }
-//         curFile += changesStatus->selectedItems().size();
-//         for(int i = 0; i < curFile; i++)
-//         {
-//             if(!addedFile->item(i, 0))
-//             {
-//                 addedFile->removeRow(i);
-//             }
-//         }
-//         addedFile->resizeColumnsToContents();
-//     }
-//     addedFile->setRowCount(curFile/2);
-//     QString str;
-//     str =  QString::number(curFile/2) + " added files";
-//     Window::labelAdd->setText(str);
-// }
 
 void Window::onClickAdd()
 {
+    QString str;
+    bool flag = false;
+    int curSize = 0;
+
     // if it works it works
-    QTableWidgetItem * tempItem;
-    QString tempStr;
-    int flag = 0;
-    actualSize = 0;
     addedFile->setRowCount( curFile/2 + changesStatus->selectedItems().size()); 
     addedFile->setHorizontalHeaderLabels({"FileName","Status"});
     addedFile->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -240,64 +168,69 @@ void Window::onClickAdd()
     {
         for(int i = 0; i < changesStatus->selectedItems().size(); i++)
         {
-            std::cout << pathList.size() << std::endl;
-            for(int j = 0; j < pathList.size(); j++)
+
+            // testing presence in the list already
+            for(unsigned int j = 0; j < pathList.size(); j++)
             {
                 if(i%2 == 0)
                 {
+#if defined (__DEBUG)
                     std::cout << i << ", " << changesStatus->selectedItems()[i]->text().toStdString() << ", " << pathList[j] << std::endl;
+#endif
                     if(changesStatus->selectedItems()[i]->text().toStdString() == pathList[j])
                     {
-                        std::cout << changesStatus->selectedItems()[i]->text().toStdString() << " already in pathlist at position "  << j << " : " << pathList[j] << std::endl;
-                        flag = 1;
+                        std::cout   << changesStatus->selectedItems()[i]->text().toStdString() 
+                                    << " already in pathlist at position "  
+                                    << j << " : " << pathList[j] << std::endl;
+                        flag = true;
                         break;
                     }
                     else
                     {
-                        std::cout << "NOT IN PATHLIST" << std::endl;
                         continue;
                     }
                 }
             }
 
-            std::cout << "flag :" << flag << std::endl;
-            if(flag == 0)
+            // adding in list if not already in
+            if(flag == false)
             {
-                std::cout << "adding file :" <<changesStatus->selectedItems()[i]->text().toStdString()  << std::endl;
-                std::cout << "i : " << i << std::endl;
-                std::cout << "i%2 : " << i%2 << std::endl;
-                std::cout << "curFile/2 + i - 1 : " << curFile/2 + i - 1 << std::endl;
-                std::cout << "curFile/2 + i : " << curFile/2 + i << std::endl;
+#if defined (__DEBUG)
+                std::cout << "adding file : " << changesStatus->selectedItems()[i]->text().toStdString()  << std::endl;
+#endif
                 addedFile->setItem(i%2 ? curFile/2 + i - 1 : curFile/2 + i, i%2, changesStatus->selectedItems()[i]->clone());
                 if(i%2 == 0)
                 {
                     pathList.push_back(changesStatus->selectedItems()[i]->text().toStdString());
                 }
-                actualSize++;
-                flag = 0;
+                curSize++;
+                flag = false;
             }
             else
             {
-                flag = 0;   
+                flag = false;   
                 break;
             }
         }
-        if(actualSize)
-            curFile += actualSize;
-        for(int i = 0; i < curFile; i++)
+
+        // update size
+        if(curSize)
+        {
+            curFile += curSize;
+        }
+
+        // clean empty rows
+        for(unsigned int i = 0; i < curFile; i++)
         {
             if(!addedFile->item(i, 0))
             {
                 addedFile->removeRow(i);
             }
-            
         }
         addedFile->resizeColumnsToContents();
     }
-    // for(int i = 0; i < pathList.size(); i++)
-    //     std::cout << pathList[i] << std::endl;
+
     addedFile->setRowCount(curFile/2);
-    QString str;
     str =  QString::number(curFile/2) + " added files";
     Window::labelAdd->setText(str);
 }
@@ -305,9 +238,9 @@ void Window::onClickAdd()
 int callbackCheck(const char *path, const char *matched_pathspec, void *payload)
 {
     struct index_options *opts = (struct index_options *)(payload);
-    int ret;
-    unsigned status;
-    (void) matched_pathspec;
+    int ret = 1;
+    unsigned int status;
+    (void) matched_pathspec; // remove a warning
     // /* Get the file status */
     if (git_status_file(&status, opts->repo, path) < 0)
         return -1;
@@ -315,13 +248,11 @@ int callbackCheck(const char *path, const char *matched_pathspec, void *payload)
 #if defined (__DEBUG)
     if ((status & GIT_STATUS_WT_MODIFIED) || (status & GIT_STATUS_WT_NEW)) 
     {
-        // std::cout << "-> add " <<  path << std::endl;
+        std::cout << "-> MODIFIED " << path << std::endl;
     }
 #endif
 
-    ret = 1;
-
-    for(int i = 0; i < actualSize; i++)
+    for(unsigned int i = 0; i < pathList.size(); i++)
     {
         if((std::string) pathList[i] == path)
         {
@@ -342,45 +273,108 @@ void Window::onClickCommit()
     struct index_options options;
     git_signature *author_signature, *committer_signature;
     const char * comment = "File addition with git-gui"; 
-    QString str;
-    str =  "Commit !";
+    QString str = "Commit failed !";
+    
 
     options.repo = git_objct->GetCurrentGitRepo();
 
+    if(this->getGitNameEmpty() == false 
+    && this->getGitMailEmpty() == false)            // check to avoid crash
+    { 
 #if defined (__DEBUG)
-    qDebug() << git_revparse_ext(&parnt, &ref, git_objct->GetCurrentGitRepo(), "HEAD");
-    qDebug() << git_repository_index(&index, git_objct->GetCurrentGitRepo());
-    qDebug() << git_index_write_tree(&tree_oid, index);
-    qDebug() << git_index_update_all(index, NULL, callbackCheck, &options);
-    qDebug() << git_index_write(index);
-    qDebug() << git_tree_lookup(&tree, git_objct->GetCurrentGitRepo(), &tree_oid);
-    qDebug() << git_signature_now(&author_signature, this->getGitName(), this->getGitMail());
-    qDebug() << git_signature_now(&committer_signature,this->getGitName(), this->getGitMail());
-    qDebug() << git_commit_create_v(
-        &commit_oid,
-        git_objct->GetCurrentGitRepo(),
-        "HEAD",
-        author_signature,
-        committer_signature,
-        NULL,
-        comment,
-        tree,
-        parnt ? 1 : 0, parnt);
+        qDebug() << git_revparse_ext(&parnt, &ref, git_objct->GetCurrentGitRepo(), "HEAD");
+        qDebug() << git_repository_index(&index, git_objct->GetCurrentGitRepo());
+        qDebug() << git_index_write_tree(&tree_oid, index);
+        qDebug() << git_index_update_all(index, NULL, callbackCheck, &options);
+        qDebug() << git_index_write(index);
+        qDebug() << git_tree_lookup(&tree, git_objct->GetCurrentGitRepo(), &tree_oid);
+        std::cout << this->getGitName() << std::endl;
+        std::cout << this->getGitMail() << std::endl;;
+        qDebug() << git_signature_now(&author_signature, this->getGitName(), this->getGitMail());
+        qDebug() << git_signature_now(&committer_signature,this->getGitName(), this->getGitMail());
+        qDebug() << git_commit_create_v(&commit_oid,
+                                        git_objct->GetCurrentGitRepo(),
+                                        "HEAD",
+                                        author_signature,
+                                        committer_signature,
+                                        NULL,
+                                        comment,
+                                        tree,
+                                        parnt  ? 1 : 0, parnt);
+        str =  "Commit success !";
 #else
+        if(git_revparse_ext(&parnt, &ref, git_objct->GetCurrentGitRepo(), "HEAD") >= 0)
+        {
+            if(git_repository_index(&index, git_objct->GetCurrentGitRepo()) >= 0)
+            {
+                if(git_index_write_tree(&tree_oid, index) >= 0)
+                {
+                    if(git_index_update_all(index, NULL, callbackCheck, &options) >= 0)
+                    {
+                        if(git_index_write(index) >= 0)
+                        {
+                            if(git_tree_lookup(&tree, git_objct->GetCurrentGitRepo(), &tree_oid) >= 0)
+                            {
+                                if(git_signature_now(&author_signature, this->getGitName(), this->getGitMail()) >= 0
+                                && git_signature_now(&committer_signature,this->getGitName(), this->getGitMail()) >= 0)
+                                {
+                                    if(git_commit_create_v( &commit_oid,
+                                                            git_objct->GetCurrentGitRepo(),
+                                                            "HEAD",
+                                                            author_signature,
+                                                            committer_signature,
+                                                            NULL,
+                                                            comment,
+                                                            tree,
+                                                            parnt  ? 1 : 0, parnt) >= 0)
+                                    {
+                                        str =  "Commit success !";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 #endif
+    }
+    else
+    {
+       str =  "Commit failed : empty credentials !";
+    }
     Window::labelCommit->setText(str);
+}
+
+
+void Window::onClickPush()
+{
+    QString str;
+    str =  "Push !";
+    Window::labelPush->setText(str);
 }
 
 const char* Window::getGitName() 
 {
-    return gitNameTextBox->toPlainText().toStdString().c_str();
+    strncpy(tmpStr, gitNameTextBox->toPlainText().toStdString().c_str(), 64);
+    return tmpStr;
+}
+
+bool Window::getGitNameEmpty() 
+{
+    return gitNameTextBox->document()->isEmpty();
 }
 
 const char* Window::getGitMail() 
 {
-    return gitMailTextBox->toPlainText().toStdString().c_str();
+    strncpy(tmpStr, gitMailTextBox->toPlainText().toStdString().c_str(), 64);
+    return tmpStr;
 }
 
+bool Window::getGitMailEmpty() 
+{
+    return gitMailTextBox->document()->isEmpty();
+}
 /*
 // --- REPO NOT WORKING WITH CUSTOM PATH ---//
 void Window::onClickRepo()

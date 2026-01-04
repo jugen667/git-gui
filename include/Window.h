@@ -42,6 +42,9 @@ class Window : QWidget, GitObj
         // git commit
         QPushButton     * commitButton;
         QLabel          * labelCommit;
+        // git push
+        QPushButton     * pushButton;
+        QLabel          * labelPush;
         // GUI tables
         QTableWidget    * changesStatus;
         QTableWidget    * addedFile;
@@ -50,12 +53,16 @@ class Window : QWidget, GitObj
         QLabel          * labelGitMail;
         QTextEdit       * gitNameTextBox;     
         QTextEdit       * gitMailTextBox;     
+        // Comment textbox
+        QLabel          * labelComment;
+        QTextEdit       * commentTextBox;
     public:
         using QWidget::QObject; // for QObject inheritance
         // events
         void onClickStatus();
         void onClickAdd();
         void onClickCommit();
+        void onClickPush();
         // void onClickRepo();
 
         // widgets population
@@ -63,10 +70,11 @@ class Window : QWidget, GitObj
         void TextBoxCreation(QTextEdit * pTxtBox, int x, int y, int w, int h);
 
         // getters
-        // const char* getPath();
         const char* getPath();
         const char* getGitName();
         const char* getGitMail();
+        bool getGitNameEmpty();
+        bool getGitMailEmpty();
 
         QTableWidget * GetAddedFile();
         Window * GetWindow();

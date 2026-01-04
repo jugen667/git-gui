@@ -14,9 +14,22 @@
 //===============
 // - PROTOTYPES -
 //===============
-// for debug
 void DisplayStatus(const git_status_entry * status_entry); 
 QString ReturnStatus(const git_status_entry * status_entry);
+
+enum index_mode {
+    INDEX_NONE,
+    INDEX_ADD
+};
+
+struct index_options {
+    int dry_run;
+    int verbose;
+    git_repository *repo;
+    enum index_mode mode;
+    int add_update;
+};
+
 //================
 // - CLASSES -
 //================
