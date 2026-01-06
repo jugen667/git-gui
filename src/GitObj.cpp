@@ -36,7 +36,7 @@ void DisplayStatus(const git_status_entry * status_entry)
             std::cout << "ignored:" << status_entry->index_to_workdir->old_file.path << std::endl;
         break;
         default :
-           std::cout <<  status_entry->status << std::endl; 
+           std::cout << status_entry->status << std::endl; 
         break;
     }
 }
