@@ -50,6 +50,7 @@ class Window : QWidget, GitObj
         QTextEdit       * commentTextBox;
         // result textbox
         QTextEdit       * resultTextBox;
+
     public:
         using QWidget::QObject; // for QObject inheritance
         // events

@@ -62,7 +62,7 @@ Window::Window(GitObj * git_obj)
     labelComment->setText("Enter your comment : ");
     commentTextBox->setGeometry(800,170,300,200);
 
-    resultTextBox->setGeometry(30,600,1220,90);
+    resultTextBox->setGeometry(30,600,1220,90);   
     // window display
     this->setFixedSize(1280, 720);
     this->setVisible(true);
@@ -228,8 +228,10 @@ void Window::onClickGenerate()
             str = str + " " + pathList[i];
     else
         str = str + " -A"; // add all by default 
-    str = str + " && git commit " + (getCommentEmpty() ? "-a --allow-empty-message -m \"\"" : "-m " + getComment());
+    str = str + " && git commit " + (getCommentEmpty() ? "-a --allow-empty-message -m \"\"" : "-m \"" + getComment() + "\"");
+#if defined (__DEBUG)
     qDebug() << str;
+#endif
     Window::resultTextBox->setText(str);
 }
 
