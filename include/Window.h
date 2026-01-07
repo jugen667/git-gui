@@ -48,6 +48,9 @@ class Window : QWidget, GitObj
         // Comment textbox
         QLabel          * labelComment;
         QTextEdit       * commentTextBox;
+        // Repo open textbox
+        QPushButton     * repoButton;
+        QTextEdit       * repoTextBox;
         // result textbox
         QTextEdit       * resultTextBox;
 
@@ -57,14 +60,13 @@ class Window : QWidget, GitObj
         void onClickStatus();
         void onClickAdd();
         void onClickGenerate();
-        // void onClickRepo();
+        void onClickRepo();
 
         // widgets population
         void ButtonCreation(QPushButton * pBtn, const char * btnTxt, const char * btnToolTip, int x, int y, int w, int h);
         void TextBoxCreation(QTextEdit * pTxtBox, int x, int y, int w, int h);
 
         // getters
-        const char* getPath();
         const QString getComment();
         bool getCommentEmpty();
 

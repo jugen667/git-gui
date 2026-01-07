@@ -42,6 +42,7 @@ class GitObj
     public:
         // getter
         git_repository      *GetCurrentGitRepo(); 
+        git_repository      **GetCurrentGitRepoAddress(); 
         git_status_list     *GetGitStatusList();
         git_status_list     **GetGitStatusListAddress();
         git_status_options  *GetGitStatusOpt();
