@@ -31,14 +31,16 @@ Window::Window(GitObj * git_obj)
     // labels 
     labelStatus     =   new QLabel(NULL,this); 
     labelAdd        =   new QLabel(NULL,this); 
-    labelCommit     =   new QLabel(NULL,this); 
     labelComment    =   new QLabel(NULL,this); 
     // lists
     changesStatus   =   new QTableWidget(this); 
     addedFile       =   new QTableWidget(this); 
     // text boxes
     commentTextBox  =   new QTextEdit("", this);
-    resultTextBox  =   new QTextEdit("", this);
+    resultTextBox   =   new QTextEdit("", this);
+    // repo
+    repoButton      =   new QPushButton(NULL, this);
+    repoTextBox     =   new QTextEdit("", this);
 
     // add options checkbox 
 
@@ -48,9 +50,12 @@ Window::Window(GitObj * git_obj)
     labelAdd->setGeometry(350,90,120,30);
     ButtonCreation(addButton, "Add file(s)", "Add selected files", 130,30,80,30);
     QPushButton::connect(addButton, &QPushButton::clicked, this, &Window::onClickAdd);
-    labelCommit->setGeometry(800,90,300,30);
-    ButtonCreation(commitButton, "Generate git command", "Generate git command", 800,30,100,30);
+    ButtonCreation(commitButton, "Generate git command", "Generate git command", 230,30,200,30);
     QPushButton::connect(commitButton, &QPushButton::clicked, this, &Window::onClickGenerate);
+
+    ButtonCreation(repoButton, "Set repo", "Generate git command", 800,30,100,30);
+    QPushButton::connect(repoButton, &QPushButton::clicked, this, &Window::onClickRepo);
+    repoTextBox->setGeometry(930,30,200,30);
 
 
     changesStatus->setGeometry(30,170,300,400);
@@ -222,13 +227,18 @@ void Window::onClickAdd()
 void Window::onClickGenerate()
 {
     QString str;
-    str =  "git add";
-    if(pathList.size())
-        for(unsigned int i = 0; i < pathList.size(); i++)
-            str = str + " " + pathList[i];
+    if(Window::git_objct->GetCurrentGitRepo() != NULL)
+    {
+        str =  "git add";
+        if(pathList.size())
+            for(unsigned int i = 0; i < pathList.size(); i++)
+                str = str + " " + pathList[i];
+        else
+            str = str + " -A"; // add all by default 
+        str = str + " && git commit " + (getCommentEmpty() ? "-a --allow-empty-message -m \"\"" : "-m \"" + getComment() + "\"");
+    }
     else
-        str = str + " -A"; // add all by default 
-    str = str + " && git commit " + (getCommentEmpty() ? "-a --allow-empty-message -m \"\"" : "-m \"" + getComment() + "\"");
+        str = "REPO NOT SET";
 #if defined (__DEBUG)
     qDebug() << str;
 #endif
@@ -245,20 +255,15 @@ bool Window::getCommentEmpty()
 {
     return commentTextBox->document()->isEmpty();
 }
-/*
+
 // --- REPO NOT WORKING WITH CUSTOM PATH ---//
 void Window::onClickRepo()
 {
     int error;
-    std::cout << repoPathTxtBox->toPlainText().toStdString().c_str() << std::endl;
-    error = git_repository_open(Window::git_object->GetCurrentGitRepoAddress(), Window::getPath());
+    error = git_repository_open(Window::git_objct->GetCurrentGitRepoAddress(), repoTextBox->toPlainText().toStdString().c_str());
+#if defined (__DEBUG)
+    std::cout << repoTextBox->toPlainText().toStdString().c_str() << std::endl;
     std::cout << error << std::endl;
+#endif
 }
-
-// getters
-const char* Window::getPath() 
-{
-    return repoPathTxtBox->toPlainText().toStdString().c_str();
-}
-*/
 

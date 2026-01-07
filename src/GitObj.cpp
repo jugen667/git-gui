@@ -86,13 +86,18 @@ GitObj::GitObj()
     statusOptions.flags = (GIT_STATUS_OPT_INCLUDE_UNTRACKED | GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS);
 
     // init the repo the bin is in
-    git_repository_open(&repo,".");
+    // git_repository_open(&repo,".");
 }
 
 // getters
 git_repository * GitObj::GetCurrentGitRepo()
 {
     return (GitObj::repo);
+}
+
+git_repository ** GitObj::GetCurrentGitRepoAddress()
+{
+    return &(GitObj::repo);
 }
 
 git_status_list * GitObj::GetGitStatusList()
