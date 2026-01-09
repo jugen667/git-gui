@@ -39,9 +39,8 @@ class Window : QWidget, GitObj
         // git add
         QPushButton     * addButton;
         QLabel          * labelAdd;
-        // git commit
-        QPushButton     * commitButton;
-        QLabel          * labelCommit;
+        // generate
+        QPushButton     * generateButton;
         // GUI tables
         QTableWidget    * changesStatus;
         QTableWidget    * addedFile; 
@@ -53,6 +52,13 @@ class Window : QWidget, GitObj
         QTextEdit       * repoTextBox;
         // result textbox
         QTextEdit       * resultTextBox;
+        // checkboxes
+        QCheckBox       * pushCheckBox;
+        QCheckBox       * forceCheckBox;
+        QCheckBox       * pullCheckBox;
+        QCheckBox       * branchCheckBox;
+        QTextEdit       * branchTextBox;
+
 
     public:
         using QWidget::QObject; // for QObject inheritance
@@ -61,15 +67,19 @@ class Window : QWidget, GitObj
         void onClickAdd();
         void onClickGenerate();
         void onClickRepo();
+        void onClickPushCheck();
+        void onClickBranchCheck();
 
         // widgets population
         void ButtonCreation(QPushButton * pBtn, const char * btnTxt, const char * btnToolTip, int x, int y, int w, int h);
         void TextBoxCreation(QTextEdit * pTxtBox, int x, int y, int w, int h);
 
         // getters
-        const QString getComment();
-        bool getCommentEmpty();
-
+        const QString getText(QTextEdit * TextBox);
+        bool isTextEmpty(QTextEdit * TextBox);
+        Qt::CheckState getCheckBoxState(QCheckBox * CheckBox);
+        void SetVisible(QWidget * Widget, bool value);
+;
         QTableWidget * GetAddedFile();
         Window * GetWindow();
         // constructor

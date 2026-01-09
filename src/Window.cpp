@@ -27,7 +27,7 @@ Window::Window(GitObj * git_obj)
     // buttons
     buttonStatus    =   new QPushButton(NULL,this); 
     addButton       =   new QPushButton(NULL,this); 
-    commitButton    =   new QPushButton(NULL,this); 
+    generateButton    =   new QPushButton(NULL,this); 
     // labels 
     labelStatus     =   new QLabel(NULL,this); 
     labelAdd        =   new QLabel(NULL,this); 
@@ -42,6 +42,13 @@ Window::Window(GitObj * git_obj)
     repoButton      =   new QPushButton(NULL, this);
     repoTextBox     =   new QTextEdit("", this);
 
+    // checkbox 
+    pushCheckBox    =   new QCheckBox("git push", this);
+    forceCheckBox   =   new QCheckBox("push with force", this);
+    pullCheckBox    =   new QCheckBox("pull before commit (beware conflicts)", this);
+    branchCheckBox  =   new QCheckBox("push on new branch", this);
+    branchTextBox  =   new QTextEdit("", this);
+
     // add options checkbox 
 
     labelStatus->setGeometry(30,90,120,30);
@@ -50,8 +57,10 @@ Window::Window(GitObj * git_obj)
     labelAdd->setGeometry(350,90,120,30);
     ButtonCreation(addButton, "Add file(s)", "Add selected files", 130,30,80,30);
     QPushButton::connect(addButton, &QPushButton::clicked, this, &Window::onClickAdd);
-    ButtonCreation(commitButton, "Generate git command", "Generate git command", 230,30,200,30);
-    QPushButton::connect(commitButton, &QPushButton::clicked, this, &Window::onClickGenerate);
+    ButtonCreation(generateButton, "Generate git command", "Generate git command", 230,30,200,30);
+    QPushButton::connect(generateButton, &QPushButton::clicked, this, &Window::onClickGenerate);
+
+    SetVisible(addButton, false);
 
     ButtonCreation(repoButton, "Set repo", "Generate git command", 800,30,100,30);
     QPushButton::connect(repoButton, &QPushButton::clicked, this, &Window::onClickRepo);
@@ -66,11 +75,24 @@ Window::Window(GitObj * git_obj)
     labelComment->setGeometry(800,130,300,30);
     labelComment->setText("Enter your comment : ");
     commentTextBox->setGeometry(800,170,300,200);
+    
+    pushCheckBox->setGeometry(800,400,200,30);
+    QCheckBox::connect(pushCheckBox, &QCheckBox::clicked, this, &Window::onClickPushCheck);
+    forceCheckBox->setGeometry(1000,400,200,30);
+    pullCheckBox->setGeometry(800,430,300,30);
+    branchCheckBox->setGeometry(800,460,200,30);
+    QCheckBox::connect(branchCheckBox, &QCheckBox::clicked, this, &Window::onClickBranchCheck);
+    branchTextBox->setGeometry(800,490,200,30);
+
+
+    SetVisible(branchTextBox,false);
+    SetVisible(forceCheckBox,false);
+
 
     resultTextBox->setGeometry(30,600,1220,90);   
     // window display
     this->setFixedSize(1280, 720);
-    this->setVisible(true);
+    SetVisible(this, true);
 }
  
 
@@ -99,6 +121,7 @@ void Window::onClickStatus()
     QString str;
     const git_status_entry * entry;
     QTableWidgetItem * tempItem;
+    resultTextBox->setText("");
     // init list
     git_status_list_new(Window::git_objct->GetGitStatusListAddress(), 
                         Window::git_objct->GetCurrentGitRepo(), 
@@ -107,6 +130,7 @@ void Window::onClickStatus()
     maxFile = count;
     if(count > 0)
     {
+        SetVisible(addButton, true);
         // clear tables
         changesStatus->clear();
         addedFile->clear();
@@ -226,37 +250,90 @@ void Window::onClickAdd()
 
 void Window::onClickGenerate()
 {
-    QString str;
+    QString str = "";
     if(Window::git_objct->GetCurrentGitRepo() != NULL)
     {
-        str =  "git add";
+        if(getCheckBoxState(branchCheckBox) == Qt::Checked  && !isTextEmpty(branchTextBox))
+        {
+            str = str + "git branch " + branchTextBox->toPlainText() + " && ";
+        }
+        if(getCheckBoxState(pullCheckBox) == Qt::Checked)
+        {
+            str = str + "git pull && ";
+        }
+        str = str + "git add";
         if(pathList.size())
+        {
             for(unsigned int i = 0; i < pathList.size(); i++)
+            {
                 str = str + " " + pathList[i];
+            }
+        }
         else
+        {
             str = str + " -A"; // add all by default 
-        str = str + " && git commit " + (getCommentEmpty() ? "-a --allow-empty-message -m \"\"" : "-m \"" + getComment() + "\"");
+        }
+        str = str + " && git commit " + (isTextEmpty(commentTextBox) ? "-a --allow-empty-message -m \"\"" : "-m \"" + getText(commentTextBox) + "\"");
+        if(getCheckBoxState(pushCheckBox) == Qt::Checked)
+        {
+            str = str + " && git push";
+            if(getCheckBoxState(forceCheckBox) == Qt::Checked)
+            {
+                str = str + " --force-with-lease";
+            }
+        }
+        if(getCheckBoxState(branchCheckBox) == Qt::Checked && !isTextEmpty(branchTextBox))
+        {
+            str = str + " -u origin " + branchTextBox->toPlainText();
+        }
     }
     else
+    {
         str = "REPO NOT SET";
+    }
+    Window::resultTextBox->setText(str);
 #if defined (__DEBUG)
     qDebug() << str;
 #endif
-    Window::resultTextBox->setText(str);
 }
 
-const QString Window::getComment() 
+void Window::onClickPushCheck()
 {
-    return commentTextBox->toPlainText();
+    QString str;
+    str = "PUSH";
+    if(getCheckBoxState(pushCheckBox) == Qt::Checked)
+    {
+        SetVisible(forceCheckBox, true);
+    }
+    else
+    {
+        SetVisible(forceCheckBox, false);
+        forceCheckBox->setCheckState(Qt::Unchecked);
+    }
+
+#if defined (__DEBUG)
+    qDebug() << str;
+#endif
 }
 
-
-bool Window::getCommentEmpty() 
+void Window::onClickBranchCheck()
 {
-    return commentTextBox->document()->isEmpty();
+#if defined (__DEBUG)
+    QString str;
+    str = "BRANCH";
+    qDebug() << str;
+#endif
+    if(getCheckBoxState(branchCheckBox) == Qt::Checked)
+    {
+        SetVisible(branchTextBox, true);
+    }
+    else
+    {
+        SetVisible(branchTextBox, false);
+        branchTextBox->setText("");
+    }
 }
 
-// --- REPO NOT WORKING WITH CUSTOM PATH ---//
 void Window::onClickRepo()
 {
     int error;
@@ -266,4 +343,29 @@ void Window::onClickRepo()
     std::cout << error << std::endl;
 #endif
 }
+
+
+
+// getters
+const QString Window::getText(QTextEdit * TextBox) 
+{
+    return TextBox->toPlainText();
+}
+
+bool Window::isTextEmpty(QTextEdit * TextBox) 
+{
+    return TextBox->document()->isEmpty();
+}
+
+Qt::CheckState Window::getCheckBoxState(QCheckBox * CheckBox) 
+{
+    return CheckBox->checkState();
+}
+
+void Window::SetVisible(QWidget * Widget, bool value) 
+{
+    Widget->setVisible(value);
+}
+
+
 
