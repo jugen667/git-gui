@@ -147,8 +147,8 @@ void Window::onClickStatus()
         for (int i=0; i<count; i++)
         {
             entry = git_status_byindex(Window::git_objct->GetGitStatusList(), i);
-            DisplayStatus(entry);
 #if defined (__DEBUG)
+            DisplayStatus(entry);
 #endif
             tempItem = new QTableWidgetItem();
             tempItem->setData(Qt::UserRole, entry);
@@ -336,12 +336,13 @@ void Window::onClickBranchCheck()
 
 void Window::onClickRepo()
 {
+#if defined (__DEBUG)
     int error;
     error = git_repository_open(Window::git_objct->GetCurrentGitRepoAddress(), repoTextBox->toPlainText().toStdString().c_str());
-#if defined (__DEBUG)
     std::cout << repoTextBox->toPlainText().toStdString().c_str() << std::endl;
     std::cout << error << std::endl;
 #endif
+    git_repository_open(Window::git_objct->GetCurrentGitRepoAddress(), repoTextBox->toPlainText().toStdString().c_str());
 }
 
 
