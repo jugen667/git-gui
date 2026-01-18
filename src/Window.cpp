@@ -47,7 +47,7 @@ Window::Window(GitObj * git_obj)
     forceCheckBox   =   new QCheckBox("push with force", this);
     pullCheckBox    =   new QCheckBox("pull before commit (beware conflicts)", this);
     branchCheckBox  =   new QCheckBox("push on new branch", this);
-    branchTextBox  =   new QTextEdit("", this);
+    branchTextBox   =   new QTextEdit("", this);
 
     // add options checkbox 
 
@@ -57,12 +57,12 @@ Window::Window(GitObj * git_obj)
     labelAdd->setGeometry(350,90,120,30);
     ButtonCreation(addButton, "Add file(s)", "Add selected files", 130,30,80,30);
     QPushButton::connect(addButton, &QPushButton::clicked, this, &Window::onClickAdd);
-    ButtonCreation(generateButton, "Generate git command", "Generate git command", 230,30,200,30);
+    ButtonCreation(generateButton, "Generate git command", "Generate output git command", 230,30,200,30);
     QPushButton::connect(generateButton, &QPushButton::clicked, this, &Window::onClickGenerate);
 
     SetVisible(addButton, false);
 
-    ButtonCreation(repoButton, "Set repo", "Generate git command", 800,30,100,30);
+    ButtonCreation(repoButton, "Set repo", "Set the working repository", 800,30,100,30);
     QPushButton::connect(repoButton, &QPushButton::clicked, this, &Window::onClickRepo);
     repoTextBox->setGeometry(930,30,200,30);
 
